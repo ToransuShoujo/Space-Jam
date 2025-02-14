@@ -1,68 +1,80 @@
 from direct.showbase.ShowBase import ShowBase
+from SpaceJamClasses import *
+from DefensePaths import *
+
 
 class MyApp(ShowBase):
     def __init__(self):
+        full_cycle = 60
+
         ShowBase.__init__(self)
         self.setup_scene()
 
+        for j in range(full_cycle):
+            Drone.drone_count += 1
+            nickname = 'Drone' + str(Drone.drone_count)
+
+            self.draw_cloud_defense(self.planet1, nickname)
+            self.draw_rotate_x(self.planet2, nickname, j, full_cycle, 50.0)
+            self.draw_rotate_y(self.planet2, nickname, j, full_cycle, 50.0)
+            self.draw_rotate_z(self.planet2, nickname, j, full_cycle, 50.0)
+            self.draw_baseball_seams(self.space_station, nickname, j, full_cycle, 2)
+
     def setup_scene(self):
-        self.universe = self.loader.loadModel('./Assets/Universe/Universe.x')
-        self.universe_texture = self.loader.loadTexture('./Assets/Universe/Universe.jpg')
-        self.universe.reparentTo(self.render)
-        self.universe.setScale(15000)
-        self.universe.setTexture(self.universe_texture, 1)
+        self.universe = Universe(self.loader, './Assets/Universe/Universe.x', self.render, 'Universe',
+                                 Vec3(0, 0, 0), 15000, './Assets/Universe/Universe.jpg')
+        self.planet1 = Planet(self.loader, './Assets/Planets/protoPlanet.x', self.render, 'Planet 1',
+                              Vec3(150, 5000, 67), 350, './Assets/Planets/barren.png')
+        self.planet2 = Planet(self.loader, './Assets/Planets/protoPlanet.x', self.render, 'Planet 2',
+                              Vec3(3750, 2000, 600), 450, './Assets/Planets/gaseous.png')
+        self.planet3 = Planet(self.loader, './Assets/Planets/protoPlanet.x', self.render, 'Planet 3',
+                              Vec3(-4600, 1600, 432), 220, './Assets/Planets/marshy.png')
+        self.planet4 = Planet(self.loader, './Assets/Planets/protoPlanet.x', self.render, 'Planet 4',
+                              Vec3(-2300, -800, -35), 157, './Assets/Planets/martian.png')
+        self.planet5 = Planet(self.loader, './Assets/Planets/protoPlanet.x', self.render, 'Planet 5',
+                              Vec3(-2600, -4000, 67), 400, './Assets/Planets/sandy.png')
+        self.planet6 = Planet(self.loader, './Assets/Planets/protoPlanet.x', self.render, 'Planet 6',
+                              Vec3(-3900, 3570, -232), 350, './Assets/Planets/snowy.png')
+        self.space_station = SpaceStation(self.loader, './Assets/Space Station/spaceStation.egg', self.render,
+                                          'Space Station', Vec3(600, -2400, 0), 25)
+        self.spaceship = Spaceship(self.loader, './Assets/Spaceship/Dumbledore.egg', self.render, 'Spaceship',
+                                   Vec3(800, 800, 0), 75)
 
-        self.planet1 = self.loader.loadModel('./Assets/Planets/protoPlanet.x')
-        self.planet1_texture = self.loader.loadTexture('./Assets/Planets/barren.png')
-        self.planet1.reparentTo(self.render)
-        self.planet1.setPos(150, 5000, 67)
-        self.planet1.setScale(350)
-        self.planet1.setTexture(self.planet1_texture, 1)
+    def draw_baseball_seams(self, central_object, drone_name, step, num_seams, radius=1):
+        unit_vec = baseball_seams(step, num_seams, b=0.4)
+        unit_vec.normalize()
+        position = unit_vec * radius * 250 + central_object.model_node.getPos()
+        Drone(self.loader, './Assets/Drone Defender/DroneDefender.obj', self.render, drone_name, position, 5,
+              './Assets/Drone Defender/octotoad1_auv.png')
 
-        self.planet2 = self.loader.loadModel('./Assets/Planets/protoPlanet.x')
-        self.planet2_texture = self.loader.loadTexture('./Assets/Planets/gaseous.png')
-        self.planet2.reparentTo(self.render)
-        self.planet2.setPos(3750, 2000, 600)
-        self.planet2.setScale(450)
-        self.planet2.setTexture(self.planet2_texture, 1)
+    def draw_cloud_defense(self, central_object, drone_name):
+        unit_vec = cloud()
+        unit_vec.normalize()
+        position = unit_vec * 500 + central_object.model_node.getPos()
+        Drone(self.loader, './Assets/Drone Defender/DroneDefender.obj', self.render, drone_name, position, 10,
+              './Assets/Drone Defender/octotoad1_auv.png')
 
-        self.planet3 = self.loader.loadModel('./Assets/Planets/protoPlanet.x')
-        self.planet3_texture = self.loader.loadTexture('./Assets/Planets/marshy.png')
-        self.planet3.reparentTo(self.render)
-        self.planet3.setPos(-4600, 1600, 432)
-        self.planet3.setScale(220)
-        self.planet3.setTexture(self.planet3_texture, 1)
+    def draw_rotate_x(self, central_object, drone_name, step, num_drones, radius):
+        unit_vec = rotate_x(step, num_drones, radius)
+        unit_vec.normalize()
+        position = unit_vec * 500 + central_object.model_node.getPos()
+        Drone(self.loader, './Assets/Drone Defender/DroneDefender.obj', self.render, drone_name, position, 5,
+              './Assets/Drone Defender/octotoad1_auv.png')
 
-        self.planet4 = self.loader.loadModel('./Assets/Planets/protoPlanet.x')
-        self.planet4_texture = self.loader.loadTexture('./Assets/Planets/martian.png')
-        self.planet4.reparentTo(self.render)
-        self.planet4.setPos(-2300, -800, -35)
-        self.planet4.setScale(157)
-        self.planet4.setTexture(self.planet4_texture, 1)
+    def draw_rotate_y(self, central_object, drone_name, step, num_drones, radius):
+        unit_vec = rotate_y(step, num_drones, radius)
+        unit_vec.normalize()
+        position = unit_vec * 500 + central_object.model_node.getPos()
+        Drone(self.loader, './Assets/Drone Defender/DroneDefender.obj', self.render, drone_name, position, 5,
+              './Assets/Drone Defender/octotoad1_auv.png')
 
-        self.planet5 = self.loader.loadModel('./Assets/Planets/protoPlanet.x')
-        self.planet5_texture = self.loader.loadTexture('./Assets/Planets/sandy.png')
-        self.planet5.reparentTo(self.render)
-        self.planet5.setPos(-2600, -4000, 67)
-        self.planet5.setScale(400)
-        self.planet5.setTexture(self.planet5_texture, 1)
+    def draw_rotate_z(self, central_object, drone_name, step, num_drones, radius):
+        unit_vec = rotate_z(step, num_drones, radius)
+        unit_vec.normalize()
+        position = unit_vec * 500 + central_object.model_node.getPos()
+        Drone(self.loader, './Assets/Drone Defender/DroneDefender.obj', self.render, drone_name, position, 5,
+              './Assets/Drone Defender/octotoad1_auv.png')
 
-        self.planet6 = self.loader.loadModel('./Assets/Planets/protoPlanet.x')
-        self.planet6_texture = self.loader.loadTexture('./Assets/Planets/snowy.png')
-        self.planet6.reparentTo(self.render)
-        self.planet6.setPos(-3900, 3570, -232)
-        self.planet6.setScale(350)
-        self.planet6.setTexture(self.planet6_texture, 1)
-
-        self.space_station = self.loader.loadModel('./Assets/Space Station/spaceStation.egg')
-        self.space_station.reparentTo(self.render)
-        self.space_station.setPos(600, -2400, 0)
-        self.space_station.setScale(25)
-
-        self.spaceship = self.loader.loadModel('./Assets/Spaceship/Dumbledore.egg')
-        self.spaceship.reparentTo(self.render)
-        self.spaceship.setPos(800, 800, 0)
-        self.spaceship.setScale(75)
 
 app = MyApp()
 app.run()
