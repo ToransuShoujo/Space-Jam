@@ -1,24 +1,16 @@
 from direct.showbase.ShowBase import ShowBase
+from direct.task import Task
 from SpaceJamClasses import *
 from DefensePaths import *
 
 
 class MyApp(ShowBase):
     def __init__(self):
-        full_cycle = 60
-
         ShowBase.__init__(self)
+
         self.setup_scene()
-
-        for j in range(full_cycle):
-            Drone.drone_count += 1
-            nickname = 'Drone' + str(Drone.drone_count)
-
-            self.draw_cloud_defense(self.planet1, nickname)
-            self.draw_rotate_x(self.planet2, nickname, j, full_cycle, 50.0)
-            self.draw_rotate_y(self.planet2, nickname, j, full_cycle, 50.0)
-            self.draw_rotate_z(self.planet2, nickname, j, full_cycle, 50.0)
-            self.draw_baseball_seams(self.space_station, nickname, j, full_cycle, 2)
+        self.setup_drones()
+        self.set_camera()
 
     def setup_scene(self):
         self.universe = Universe(self.loader, './Assets/Universe/Universe.x', self.render, 'Universe',
@@ -39,6 +31,24 @@ class MyApp(ShowBase):
                                           'Space Station', Vec3(600, -2400, 0), 25)
         self.spaceship = Spaceship(self.loader, './Assets/Spaceship/Dumbledore.egg', self.render, 'Spaceship',
                                    Vec3(800, 800, 0), 75)
+
+    def setup_drones(self):
+        full_cycle = 60
+
+        for j in range(full_cycle):
+            Drone.drone_count += 1
+            nickname = 'Drone' + str(Drone.drone_count)
+
+            self.draw_cloud_defense(self.planet1, nickname)
+            self.draw_rotate_x(self.planet2, nickname, j, full_cycle, 50.0)
+            self.draw_rotate_y(self.planet2, nickname, j, full_cycle, 50.0)
+            self.draw_rotate_z(self.planet2, nickname, j, full_cycle, 50.0)
+            self.draw_baseball_seams(self.space_station, nickname, j, full_cycle, 2)
+
+    def set_camera(self):
+        self.disableMouse()
+        self.camera.reparentTo(self.spaceship.model_node)
+        self.camera.setFluidPos(0, 1, 0)
 
     def draw_baseball_seams(self, central_object, drone_name, step, num_seams, radius=1):
         unit_vec = baseball_seams(step, num_seams, b=0.4)
