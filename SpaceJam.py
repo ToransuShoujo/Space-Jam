@@ -30,7 +30,7 @@ class MyApp(ShowBase):
         self.space_station = SpaceStation(self.loader, './Assets/Space Station/spaceStation.egg', self.render,
                                           'Space Station', Vec3(600, -2400, 0), 25)
         self.spaceship = Spaceship(self.loader, './Assets/Spaceship/Dumbledore.egg', self.render, 'Spaceship',
-                                   Vec3(800, 800, 0), 75)
+                                   Vec3(800, 800, 0), 75, self.taskMgr)
 
     def setup_drones(self):
         full_cycle = 60

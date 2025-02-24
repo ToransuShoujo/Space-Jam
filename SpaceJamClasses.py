@@ -4,7 +4,8 @@ from panda3d.core import *
 from direct.task import Task
 
 
-class Planet(ShowBase):
+class Model(ShowBase):
+    # tex_path is optional here because sometimes, like in the event of using a .egg file, you do not need to provide one.
     def __init__(self, loader: Loader, model_path: str, parent_node: NodePath, node_name: str, pos_vec: Vec3,
                  scale_vec: float, tex_path: str = None):
         self.model_node = loader.loadModel(model_path)
@@ -18,68 +19,53 @@ class Planet(ShowBase):
             self.model_node.setTexture(texture, 1)
 
 
-class Universe(ShowBase):
+class Planet(Model):
     def __init__(self, loader: Loader, model_path: str, parent_node: NodePath, node_name: str, pos_vec: Vec3,
                  scale_vec: float, tex_path: str = None):
-        self.model_node = loader.loadModel(model_path)
-        self.model_node.reparentTo(parent_node)
-        self.model_node.setPos(pos_vec)
-        self.model_node.setScale(scale_vec)
-        self.model_node.setName(node_name)
-
-        if tex_path:
-            texture = loader.loadTexture(tex_path)
-            self.model_node.setTexture(texture, 1)
+        super().__init__(loader, model_path, parent_node, node_name, pos_vec, scale_vec, tex_path)
 
 
-class SpaceStation(ShowBase):
+class Universe(Model):
     def __init__(self, loader: Loader, model_path: str, parent_node: NodePath, node_name: str, pos_vec: Vec3,
                  scale_vec: float, tex_path: str = None):
-        self.model_node = loader.loadModel(model_path)
-        self.model_node.reparentTo(parent_node)
-        self.model_node.setPos(pos_vec)
-        self.model_node.setScale(scale_vec)
-        self.model_node.setName(node_name)
-
-        if tex_path:
-            texture = loader.loadTexture(tex_path)
-            self.model_node.setTexture(texture, 1)
+        super().__init__(loader, model_path, parent_node, node_name, pos_vec, scale_vec, tex_path)
 
 
-class Spaceship(ShowBase):
+class SpaceStation(Model):
     def __init__(self, loader: Loader, model_path: str, parent_node: NodePath, node_name: str, pos_vec: Vec3,
                  scale_vec: float, tex_path: str = None):
-        self.model_node = loader.loadModel(model_path)
-        self.model_node.reparentTo(parent_node)
-        self.model_node.setPos(pos_vec)
-        self.model_node.setScale(scale_vec)
-        self.model_node.setName(node_name)
+        super().__init__(loader, model_path, parent_node, node_name, pos_vec, scale_vec, tex_path)
 
-        if tex_path:
-            texture = loader.loadTexture(tex_path)
-            self.model_node.setTexture(texture, 1)
+
+class Spaceship(Model):
+    def __init__(self, loader: Loader, model_path: str, parent_node: NodePath, node_name: str, pos_vec: Vec3,
+                 scale_vec: float, manager: Task, tex_path: str = None):
+        super().__init__(loader, model_path, parent_node, node_name, pos_vec, scale_vec, tex_path)
+
+        self.task_manager = manager
+        self.render = parent_node
 
         self.set_key_bindings()
 
     def thrust(self, key_down):
         if key_down:
-            taskMgr.add(self.apply_thrust, 'forward-thrust')
+            self.task_manager.add(self.apply_thrust, 'forward-thrust')
         else:
-            taskMgr.remove('forward-thrust')
+            self.task_manager.remove('forward-thrust')
 
     def apply_thrust(self, task):
         rate = 5
 
-        trajectory = render.getRelativeVector(self.model_node, Vec3.forward())
+        trajectory = self.render.getRelativeVector(self.model_node, Vec3.forward())
         trajectory.normalize()
         self.model_node.setFluidPos(self.model_node.getPos() + trajectory * rate)
         return Task.cont
 
     def left_turn(self, key_down):
         if key_down:
-            taskMgr.add(self.apply_left_turn, 'left-turn')
+            self.task_manager.add(self.apply_left_turn, 'left-turn')
         else:
-            taskMgr.remove('left-turn')
+            self.task_manager.remove('left-turn')
 
     def apply_left_turn(self, task):
         rate = 0.5
@@ -89,9 +75,9 @@ class Spaceship(ShowBase):
 
     def right_turn(self, key_down):
         if key_down:
-            taskMgr.add(self.apply_right_turn, 'right-turn')
+            self.task_manager.add(self.apply_right_turn, 'right-turn')
         else:
-            taskMgr.remove('right-turn')
+            self.task_manager.remove('right-turn')
 
     def apply_right_turn(self, task):
         rate = 0.5
@@ -101,9 +87,9 @@ class Spaceship(ShowBase):
 
     def look_up(self, key_down):
         if key_down:
-            taskMgr.add(self.apply_look_up, 'look-up')
+            self.task_manager.add(self.apply_look_up, 'look-up')
         else:
-            taskMgr.remove('look-up')
+            self.task_manager.remove('look-up')
 
     def apply_look_up(self, task):
         rate = 0.4
@@ -113,9 +99,9 @@ class Spaceship(ShowBase):
 
     def look_down(self, key_down):
         if key_down:
-            taskMgr.add(self.apply_look_down, 'look-down')
+            self.task_manager.add(self.apply_look_down, 'look-down')
         else:
-            taskMgr.remove('look-down')
+            self.task_manager.remove('look-down')
 
     def apply_look_down(self, task):
         rate = 0.4
@@ -125,9 +111,9 @@ class Spaceship(ShowBase):
 
     def roll_left(self, key_down):
         if key_down:
-            taskMgr.add(self.apply_roll_left, 'roll-left')
+            self.task_manager.add(self.apply_roll_left, 'roll-left')
         else:
-            taskMgr.remove('roll-left')
+            self.task_manager.remove('roll-left')
 
     def apply_roll_left(self, task):
         rate = 0.25
@@ -137,9 +123,9 @@ class Spaceship(ShowBase):
 
     def roll_right(self, key_down):
         if key_down:
-            taskMgr.add(self.apply_roll_right, 'roll-right')
+            self.task_manager.add(self.apply_roll_right, 'roll-right')
         else:
-            taskMgr.remove('roll-right')
+            self.task_manager.remove('roll-right')
 
     def apply_roll_right(self, task):
         rate = 0.25
@@ -164,18 +150,10 @@ class Spaceship(ShowBase):
         self.accept('e-up', self.roll_right, [0])
 
 
-class Drone(ShowBase):
+class Drone(Model):
     # How many drones have been spawned
     drone_count = 0
 
     def __init__(self, loader: Loader, model_path: str, parent_node: NodePath, node_name: str, pos_vec: Vec3,
                  scale_vec: float, tex_path: str = None):
-        self.model_node = loader.loadModel(model_path)
-        self.model_node.reparentTo(parent_node)
-        self.model_node.setPos(pos_vec)
-        self.model_node.setScale(scale_vec)
-        self.model_node.setName(node_name)
-
-        if tex_path:
-            texture = loader.loadTexture(tex_path)
-            self.model_node.setTexture(texture, 1)
+        super().__init__(loader, model_path, parent_node, node_name, pos_vec, scale_vec, tex_path)
