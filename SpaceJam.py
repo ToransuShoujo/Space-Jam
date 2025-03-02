@@ -2,6 +2,8 @@ from direct.showbase.ShowBase import ShowBase
 from direct.task import Task
 from SpaceJamClasses import *
 from DefensePaths import *
+from panda3d.core import CollisionTraverser, CollisionHandlerPusher
+from Player import *
 
 
 class MyApp(ShowBase):
@@ -11,6 +13,14 @@ class MyApp(ShowBase):
         self.setup_scene()
         self.setup_drones()
         self.set_camera()
+
+        self.c_trav = CollisionTraverser()
+        self.c_trav.traverse(self.render)
+        self.pusher = CollisionHandlerPusher()
+        self.c_trav.addCollider(self.spaceship.collision_node, self.pusher)
+        self.pusher.addCollider(self.spaceship.collision_node, self.spaceship.model_node)
+
+        self.c_trav.showCollisions(self.render)
 
     def setup_scene(self):
         self.universe = Universe(self.loader, './Assets/Universe/Universe.x', self.render, 'Universe',
@@ -29,8 +39,8 @@ class MyApp(ShowBase):
                               Vec3(-3900, 3570, -232), 350, './Assets/Planets/snowy.png')
         self.space_station = SpaceStation(self.loader, './Assets/Space Station/spaceStation.egg', self.render,
                                           'Space Station', Vec3(600, -2400, 0), 25)
-        self.spaceship = Spaceship(self.loader, './Assets/Spaceship/Dumbledore.egg', self.render, 'Spaceship',
-                                   Vec3(800, 800, 0), 75, self.taskMgr)
+        self.spaceship = Spaceship(self.loader, self.taskMgr, self.accept, './Assets/Spaceship/Dumbledore.egg', self.render, 'Spaceship',
+                                   Vec3(800, 800, 0), 75)
 
     def setup_drones(self):
         full_cycle = 60
