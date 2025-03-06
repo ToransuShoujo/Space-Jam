@@ -21,7 +21,7 @@ class CollidableObject(PlacedObject):
         super(CollidableObject, self).__init__(loader, modelPath, parentNode, nodeName)
         # Every single type of collider will get the "_cNode" tag behind it to signify that it's a collidable object.
         self.collisionNode = self.modelNode.attachNewNode(CollisionNode(nodeName + '_cNode'))
-        self.collisionNode.show()
+        # self.collisionNode.show()
 
 
 class InverseSphereCollideObject(CollidableObject):
@@ -29,7 +29,7 @@ class InverseSphereCollideObject(CollidableObject):
                  colRadius: float):
         super(InverseSphereCollideObject, self).__init__(loader, modelPath, parentNode, nodeName)
         self.collisionNode.node().addSolid(CollisionInvSphere(colPositionVec, colRadius))
-        self.collisionNode.show()
+        # self.collisionNode.show()
 
 
 class CapsuleCollidableObject(CollidableObject):
@@ -38,7 +38,7 @@ class CapsuleCollidableObject(CollidableObject):
                  az: float, bx: float, by: float, bz: float, r: float):
         super(CapsuleCollidableObject, self).__init__(loader, modelPath, parentNode, nodeName)
         self.collisionNode.node().addSolid(CollisionCapsule(ax, ay, az, bx, by, bz, r))
-        self.collisionNode.show()
+        # self.collisionNode.show()
 
 
 class SphereCollideObject(CollidableObject):
@@ -46,4 +46,4 @@ class SphereCollideObject(CollidableObject):
                  colRadius: float):
         super(SphereCollideObject, self).__init__(loader, modelPath, parentNode, nodeName)
         self.collisionNode.node().addSolid(CollisionSphere(colPositionVec, colRadius))
-        self.collisionNode.show()
+        # self.collisionNode.show()

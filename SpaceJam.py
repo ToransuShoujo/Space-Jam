@@ -9,19 +9,7 @@ class MyApp(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)
         self.SetupScene()
-
-        fullCycle = 60
-
-        for j in range(fullCycle):
-            spaceJamClasses.Drone.droneCount += 1
-            nickName = "Drone" + str(spaceJamClasses.Drone.droneCount)
-
-            self.DrawCloudDefense(self.Planet1, nickName)
-            self.DrawBaseballSeams(self.SpaceStation, nickName, j, fullCycle, 2)
-            self.DrawRotateX(self.Planet2, nickName, j, fullCycle, 50)
-            self.DrawRotateY(self.Planet2, nickName, j, fullCycle, 50)
-            self.DrawRotateZ(self.Planet2, nickName, j, fullCycle, 50)
-
+        self.SetupDrones()
         self.SetCamera()
 
         self.cTrav = CollisionTraverser()
@@ -30,7 +18,7 @@ class MyApp(ShowBase):
         self.pusher.addCollider(self.Spaceship.collisionNode, self.Spaceship.modelNode)
         self.cTrav.addCollider(self.Spaceship.collisionNode, self.pusher)
 
-        self.cTrav.showCollisions(self.render)
+        # self.cTrav.showCollisions(self.render)
 
     def SetupScene(self):
         self.Universe = spaceJamClasses.Universe(self.loader, "./Assets/Universe/Universe.x", self.render, 'Universe',
@@ -89,6 +77,19 @@ class MyApp(ShowBase):
         position = unitVec * 500 + centralObject.modelNode.getPos()
         spaceJamClasses.Drone(self.loader, "./Assets/Drone Defender/DroneDefender.obj", self.render, droneName,
                               "./Assets/Drone Defender/octotoad1_auv.png", position, 10)
+
+    def SetupDrones(self):
+        fullCycle = 60
+
+        for j in range(fullCycle):
+            spaceJamClasses.Drone.droneCount += 1
+            nickName = "Drone" + str(spaceJamClasses.Drone.droneCount)
+
+            self.DrawCloudDefense(self.Planet1, nickName)
+            self.DrawBaseballSeams(self.SpaceStation, nickName, j, fullCycle, 2)
+            self.DrawRotateX(self.Planet2, nickName, j, fullCycle, 50)
+            self.DrawRotateY(self.Planet2, nickName, j, fullCycle, 50)
+            self.DrawRotateZ(self.Planet2, nickName, j, fullCycle, 50)
 
     def SetCamera(self):
         self.disableMouse()
