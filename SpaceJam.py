@@ -39,9 +39,9 @@ class MyApp(ShowBase):
                                                          self.render, 'Space Station',
                                                          "./Assets/Space Station/SpaceStation1_Dif2.png",
                                                          (600, -2400, 0), 25)
-        self.Spaceship = player.Spaceship(self.loader, self.taskMgr, self.accept, "./Assets/Spaceship/Dumbledore.egg",
-                                          self.render, "Spaceship", "./Assets/Spaceship/spacejet_C.png", (800, 800, 0),
-                                          75)
+        self.Spaceship = player.Spaceship(self.loader, self.taskMgr, self.accept, self.cTrav, self.camera,
+                                          "./Assets/Spaceship/Dumbledore.egg", self.render, "Spaceship",
+                                          "./Assets/Spaceship/spacejet_C.png", (800, 800, 0), 75)
 
     def DrawBaseballSeams(self, centralObject, droneName, step, numSeams, radius=1):
         unitVec = defensePaths.BaseballSeams(step, numSeams, B=0.4)
