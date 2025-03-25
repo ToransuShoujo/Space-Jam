@@ -8,16 +8,17 @@ from panda3d.core import CollisionTraverser, CollisionHandlerPusher
 class MyApp(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)
+
+        self.cTrav = CollisionTraverser()
+        self.pusher = CollisionHandlerPusher()
+
         self.SetupScene()
         self.SetupDrones()
         self.SetCamera()
 
-        self.cTrav = CollisionTraverser()
         self.cTrav.traverse(self.render)
-        self.pusher = CollisionHandlerPusher()
         self.pusher.addCollider(self.Spaceship.collisionNode, self.Spaceship.modelNode)
         self.cTrav.addCollider(self.Spaceship.collisionNode, self.pusher)
-
         # self.cTrav.showCollisions(self.render)
 
     def SetupScene(self):
@@ -82,14 +83,18 @@ class MyApp(ShowBase):
         fullCycle = 60
 
         for j in range(fullCycle):
-            spaceJamClasses.Drone.droneCount += 1
             nickName = "Drone" + str(spaceJamClasses.Drone.droneCount)
 
             self.DrawCloudDefense(self.Planet1, nickName)
+            spaceJamClasses.Drone.droneCount += 1
             self.DrawBaseballSeams(self.SpaceStation, nickName, j, fullCycle, 2)
+            spaceJamClasses.Drone.droneCount += 1
             self.DrawRotateX(self.Planet2, nickName, j, fullCycle, 50)
+            spaceJamClasses.Drone.droneCount += 1
             self.DrawRotateY(self.Planet2, nickName, j, fullCycle, 50)
+            spaceJamClasses.Drone.droneCount += 1
             self.DrawRotateZ(self.Planet2, nickName, j, fullCycle, 50)
+            spaceJamClasses.Drone.droneCount += 1
 
     def SetCamera(self):
         self.disableMouse()

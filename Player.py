@@ -28,9 +28,9 @@ class Spaceship(SphereCollideObject):
 
         self.SetKeyBindings()
 
-        self.reloadTime = .25
+        self.reloadTime = .75
         self.missileDistance = 4000  # Distance until the missile explodes.
-        self.missileBay = 1  # One missile in the missile bay to be launched.
+        self.missileBay = 2 # Two missiles in the missile bay to be launched.
 
         self.taskMgr.add(self.CheckIntervals, 'checkMissiles', 34)
 
@@ -139,22 +139,9 @@ class Spaceship(SphereCollideObject):
         return Task.cont
 
     def Fire(self):
-        if self.missileBay:
-            travRate = self.missileDistance
-            aim = self.render.getRelativeVector(self.modelNode,
-                                                Vec3.forward())  # The direction the spaceship is facing.
-            aim.normalize()
-            fireSolution = aim * travRate
-            inFront = aim * 150
-            travVec = fireSolution + self.modelNode.getPos()
-            self.missileBay -= 1
-            tag = 'Missile' + str(Missile.missileCount)
-            posVec = self.modelNode.getPos() + inFront  # Spawn the missile in front of the node of the ship
-            currentMissile = Missile(self.loader, './Assets/Phaser/phaser.egg', self.render, tag, posVec, 4.0)
-            Missile.intervals[tag] = currentMissile.modelNode.posInterval(2.0, travVec, startPos=posVec, fluid=1)
-            Missile.intervals[tag].start()
-
-            self.traverser.addCollider(currentMissile.collisionNode, self.handler)
+        if self.missileBay == 2:
+            self.SpawnMissile(Vec3(40, 10, 0))
+            self.SpawnMissile(Vec3(-40, -10, 0))
         else:
             # If we aren't reloading, we want to start reloading.
             if not self.taskMgr.hasTaskNamed('reload'):
@@ -163,12 +150,28 @@ class Spaceship(SphereCollideObject):
                 self.taskMgr.doMethodLater(0, self.Reload, 'reload')
                 return Task.cont
 
+    def SpawnMissile(self, positionModifier: Vec3 = Vec3(0, 0, 0)):
+        travRate = self.missileDistance
+        aim = self.render.getRelativeVector(self.modelNode, Vec3.forward())  # The direction the spaceship is facing.
+        aim.normalize()
+        fireSolution = aim * travRate
+        inFront = aim * 150
+        travVec = fireSolution + self.modelNode.getPos() + positionModifier
+        self.missileBay -= 1
+        tag = 'Missile' + str(Missile.missileCount)
+        posVec = self.modelNode.getPos() + inFront + positionModifier  # Spawn the missile in front of the node of the ship
+        currentMissile = Missile(self.loader, './Assets/Phaser/phaser.egg', self.render, tag, posVec, 4.0)
+        Missile.intervals[tag] = currentMissile.modelNode.posInterval(2.0, travVec, startPos=posVec, fluid=1)
+        Missile.intervals[tag].start()
+
+        self.traverser.addCollider(currentMissile.collisionNode, self.handler)
+
     def Reload(self, task):
         if task.time > self.reloadTime:
-            self.missileBay += 1
+            self.missileBay += 2
             print('Reload complete.')
-            if self.missileBay > 1:
-                self.missileBay = 1
+            if self.missileBay > 2:
+                self.missileBay = 2
             return Task.done
         elif task.time <= self.reloadTime:
             print('Reload proceeding...')
@@ -220,6 +223,8 @@ class Spaceship(SphereCollideObject):
         nodeID = self.render.find(hitID)
         nodeID.detachNode()
 
+        self.SetParticles()
+
         self.explodeNode.setPos(hitPosition)
         self.Explode()
 
@@ -231,13 +236,13 @@ class Spaceship(SphereCollideObject):
         self.explodeIntervals[tag].start()
 
     def ExplodeLight(self, t):
-        if t == 1.0 and self.explodeEffect:
+        if t >= 1.0 and self.explodeEffect:
             self.explodeEffect.disable()
         elif t == 0:
             self.explodeEffect.start(self.explodeNode)
 
     def SetParticles(self):
-        self.enableParticles()
+        base.enableParticles()
         self.explodeEffect = ParticleEffect()
         self.explodeEffect.loadConfig("./Assets/ParticleEffects/basic_xpld_efx.ptf")
         self.explodeEffect.setScale(20)
