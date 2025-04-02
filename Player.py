@@ -1,5 +1,5 @@
 from CollideObjectBase import SphereCollideObject
-from panda3d.core import Loader, NodePath, Vec3, TransparencyAttrib, CollisionTraverser
+from panda3d.core import Loader, NodePath, Vec3, TransparencyAttrib, CollisionTraverser, Point3
 from direct.task.Task import TaskManager
 from typing import Callable
 from direct.task import Task
@@ -8,6 +8,7 @@ from direct.gui.OnscreenImage import OnscreenImage
 from panda3d.core import CollisionHandlerEvent
 from direct.interval.LerpInterval import LerpFunc
 from direct.particles.ParticleEffect import ParticleEffect
+from direct.interval.IntervalGlobal import Sequence
 import re
 
 
@@ -63,6 +64,22 @@ class Spaceship(SphereCollideObject):
         self.modelNode.setFluidPos(self.modelNode.getPos() + trajectory * rate)
 
         return Task.cont
+
+    def BackThrust(self, keyDown):
+        if keyDown:
+            self.taskMgr.add(self.ApplyBackThrust, 'backward-thrust')
+        else:
+            self.taskMgr.remove('backward-thrust')
+
+    def ApplyBackThrust(self, task):
+        rate = 5
+
+        trajectory = self.render.getRelativeVector(self.modelNode, Vec3.back())
+        trajectory.normalize()
+        self.modelNode.setFluidPos(self.modelNode.getPos() + trajectory * rate)
+
+        return Task.cont
+
 
     def LeftTurn(self, keyDown):
         if keyDown:
@@ -217,11 +234,17 @@ class Spaceship(SphereCollideObject):
             self.DestroyObject(victim, intoPosition)
 
         print(shooter + ' is done.')
-        Missile.intervals[shooter].finish()
+        try:
+            Missile.intervals[shooter].finish()
+        except KeyError:
+            print('Could not finish ' + shooter + ' interval.')
 
     def DestroyObject(self, hitID, hitPosition):
         nodeID = self.render.find(hitID)
-        nodeID.detachNode()
+        try:
+            nodeID.detachNode()
+        except AssertionError:
+            pass
 
         self.SetParticles()
 
@@ -238,6 +261,9 @@ class Spaceship(SphereCollideObject):
     def ExplodeLight(self, t):
         if t >= 1.0 and self.explodeEffect:
             self.explodeEffect.disable()
+            explodeNodes = self.render.findAllMatches('ExplosionEffects')
+            for node in explodeNodes:
+                node.removeNode()
         elif t == 0:
             self.explodeEffect.start(self.explodeNode)
 
@@ -254,9 +280,27 @@ class Spaceship(SphereCollideObject):
             self.firstPerson = False
             self.Hud.destroy()
         else:
-            self.camera.setFluidPos(0, 1, 0)
+            self.camera.setFluidPos(0, 0.22, 0)
             self.firstPerson = True
             self.EnableHUD()
+
+    def BarrelRollLeft(self):
+        currentH = self.modelNode.getH()
+        currentP = self.modelNode.getP()
+        currentR = self.modelNode.getR()
+        hprInterval1 = self.modelNode.hprInterval(0.5, Point3(currentH, currentP, currentR - 360),
+                                                  startHpr=Point3(currentH, currentP, currentR))
+        barrelRoll = Sequence(hprInterval1, name="BarrelRoll")
+        barrelRoll.start()
+
+    def BarrelRollRight(self):
+        currentH = self.modelNode.getH()
+        currentP = self.modelNode.getP()
+        currentR = self.modelNode.getR()
+        hprInterval1 = self.modelNode.hprInterval(0.5, Point3(currentH, currentP, currentR + 360),
+                                                  startHpr=Point3(currentH, currentP, currentR))
+        barrelRoll = Sequence(hprInterval1, name="BarrelRoll")
+        barrelRoll.start()
 
     def SetKeyBindings(self):
         # All of our key bindings for our spaceship's movement
@@ -276,6 +320,10 @@ class Spaceship(SphereCollideObject):
         self.accept('e-up', self.RollRight, [0])
         self.accept('f', self.Fire)
         self.accept('c', self.ChangeCamera)
+        self.accept('1', self.BarrelRollLeft)
+        self.accept('3', self.BarrelRollRight)
+        self.accept('v', self.BackThrust, [1])
+        self.accept('v-up', self.BackThrust, [0])
 
     def EnableHUD(self):
         self.Hud = OnscreenImage(image='./Assets/Hud/Reticle3b.png', pos=Vec3(0, 0, 0), scale=0.1)

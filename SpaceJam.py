@@ -2,7 +2,7 @@ from direct.showbase.ShowBase import ShowBase
 import DefensePaths as defensePaths
 import SpaceJamClasses as spaceJamClasses
 import Player as player
-from panda3d.core import CollisionTraverser, CollisionHandlerPusher
+from panda3d.core import CollisionTraverser, CollisionHandlerPusher, AmbientLight
 
 
 class MyApp(ShowBase):
@@ -15,6 +15,7 @@ class MyApp(ShowBase):
         self.SetupScene()
         self.SetupDrones()
         self.SetCamera()
+        self.SetupLighting()
 
         self.cTrav.traverse(self.render)
         self.pusher.addCollider(self.Spaceship.collisionNode, self.Spaceship.modelNode)
@@ -36,6 +37,8 @@ class MyApp(ShowBase):
                                               "./Assets/Planets/sandy.png", (-2600, -4000, 67), 400)
         self.Planet6 = spaceJamClasses.Planet(self.loader, "./Assets/Planets/protoPlanet.x", self.render, 'Planet6',
                                               "./Assets/Planets/snowy.png", (-3900, 3570, -232), 350)
+        self.Sun = spaceJamClasses.Sun(self.loader, "./Assets/Planets/protoPlanet.x", self.render, 'Sun',
+                                       "./Assets/Planets/sun.jpg", (0, 0, 0),500)
         self.SpaceStation = spaceJamClasses.SpaceStation(self.loader, "./Assets/Space Station/spaceStation.egg",
                                                          self.render, 'Space Station',
                                                          "./Assets/Space Station/SpaceStation1_Dif2.png",
@@ -43,6 +46,18 @@ class MyApp(ShowBase):
         self.Spaceship = player.Spaceship(self.loader, self.taskMgr, self.accept, self.cTrav, self.camera,
                                           "./Assets/Spaceship/Dumbledore.egg", self.render, "Spaceship",
                                           "./Assets/Spaceship/spacejet_C.png", (800, 800, 0), 75)
+        self.Sentinal1 = spaceJamClasses.Orbiter(self.loader, self.taskMgr, "./Assets/Drone Defender/DroneDefender.obj",
+                                                 self.render, "Drone", 6.0, "./Assets/Drone Defender/octotoad1_auv.png",
+                                                 self.Planet3, 900, "MLB", self.Spaceship)
+        self.Sentinal2 = spaceJamClasses.Orbiter(self.loader, self.taskMgr, "./Assets/Drone Defender/DroneDefender.obj",
+                                                 self.render, "Drone", 6.0, "./Assets/Drone Defender/octotoad1_auv.png",
+                                                 self.Planet4, 500, "Cloud", self.Spaceship)
+        self.Sentinal3 = spaceJamClasses.Orbiter(self.loader, self.taskMgr, "./Assets/Drone Defender/DroneDefender.obj",
+                                                 self.render, "Drone", 6.0, "./Assets/Drone Defender/octotoad1_auv.png",
+                                                 self.Planet5, 700, "MLB", self.Spaceship)
+        self.Sentinal4 = spaceJamClasses.Orbiter(self.loader, self.taskMgr, "./Assets/Drone Defender/DroneDefender.obj",
+                                                 self.render, "Drone", 6.0, "./Assets/Drone Defender/octotoad1_auv.png",
+                                                 self.Planet6, 400, "Cloud", self.Spaceship)
 
     def DrawBaseballSeams(self, centralObject, droneName, step, numSeams, radius=1):
         unitVec = defensePaths.BaseballSeams(step, numSeams, B=0.4)
@@ -84,22 +99,31 @@ class MyApp(ShowBase):
 
         for j in range(fullCycle):
             nickName = "Drone" + str(spaceJamClasses.Drone.droneCount)
-
             self.DrawCloudDefense(self.Planet1, nickName)
             spaceJamClasses.Drone.droneCount += 1
+            nickName = "Drone" + str(spaceJamClasses.Drone.droneCount)
             self.DrawBaseballSeams(self.SpaceStation, nickName, j, fullCycle, 2)
             spaceJamClasses.Drone.droneCount += 1
+            nickName = "Drone" + str(spaceJamClasses.Drone.droneCount)
             self.DrawRotateX(self.Planet2, nickName, j, fullCycle, 50)
             spaceJamClasses.Drone.droneCount += 1
+            nickName = "Drone" + str(spaceJamClasses.Drone.droneCount)
             self.DrawRotateY(self.Planet2, nickName, j, fullCycle, 50)
             spaceJamClasses.Drone.droneCount += 1
+            nickName = "Drone" + str(spaceJamClasses.Drone.droneCount)
             self.DrawRotateZ(self.Planet2, nickName, j, fullCycle, 50)
             spaceJamClasses.Drone.droneCount += 1
 
     def SetCamera(self):
         self.disableMouse()
         self.camera.reparentTo(self.Spaceship.modelNode)
-        self.camera.setFluidPos(0, 1, 0)
+        self.camera.setFluidPos(0, 0.22, 0)
+
+    def SetupLighting(self):
+        ambientLight = AmbientLight('ambientLight')
+        ambientLight.setColor((0.4, 0.4, 0.4, 1))
+        ambientLightNP = self.render.attachNewNode(ambientLight)
+        self.render.setLight(ambientLightNP)
 
 
 app = MyApp()
