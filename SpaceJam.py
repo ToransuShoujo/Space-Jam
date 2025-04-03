@@ -2,7 +2,7 @@ from direct.showbase.ShowBase import ShowBase
 import DefensePaths as defensePaths
 import SpaceJamClasses as spaceJamClasses
 import Player as player
-from panda3d.core import CollisionTraverser, CollisionHandlerPusher, AmbientLight
+from panda3d.core import CollisionTraverser, CollisionHandlerPusher, AmbientLight, Vec3
 
 
 class MyApp(ShowBase):
@@ -38,7 +38,7 @@ class MyApp(ShowBase):
         self.Planet6 = spaceJamClasses.Planet(self.loader, "./Assets/Planets/protoPlanet.x", self.render, 'Planet6',
                                               "./Assets/Planets/snowy.png", (-3900, 3570, -232), 350)
         self.Sun = spaceJamClasses.Sun(self.loader, "./Assets/Planets/protoPlanet.x", self.render, 'Sun',
-                                       "./Assets/Planets/sun.jpg", (0, 0, 0),500)
+                                       "./Assets/Planets/sun.jpg", (0, 0, 0), 500)
         self.SpaceStation = spaceJamClasses.SpaceStation(self.loader, "./Assets/Space Station/spaceStation.egg",
                                                          self.render, 'Space Station',
                                                          "./Assets/Space Station/SpaceStation1_Dif2.png",
@@ -47,17 +47,23 @@ class MyApp(ShowBase):
                                           "./Assets/Spaceship/Dumbledore.egg", self.render, "Spaceship",
                                           "./Assets/Spaceship/spacejet_C.png", (800, 800, 0), 75)
         self.Sentinal1 = spaceJamClasses.Orbiter(self.loader, self.taskMgr, "./Assets/Drone Defender/DroneDefender.obj",
-                                                 self.render, "Drone", 6.0, "./Assets/Drone Defender/octotoad1_auv.png",
+                                                 self.render, "DroneSentinal1", 6.0, "./Assets/Drone Defender/octotoad1_auv.png",
                                                  self.Planet3, 900, "MLB", self.Spaceship)
         self.Sentinal2 = spaceJamClasses.Orbiter(self.loader, self.taskMgr, "./Assets/Drone Defender/DroneDefender.obj",
-                                                 self.render, "Drone", 6.0, "./Assets/Drone Defender/octotoad1_auv.png",
+                                                 self.render, "DroneSentinal2", 6.0, "./Assets/Drone Defender/octotoad1_auv.png",
                                                  self.Planet4, 500, "Cloud", self.Spaceship)
         self.Sentinal3 = spaceJamClasses.Orbiter(self.loader, self.taskMgr, "./Assets/Drone Defender/DroneDefender.obj",
-                                                 self.render, "Drone", 6.0, "./Assets/Drone Defender/octotoad1_auv.png",
+                                                 self.render, "DroneSentinal3", 6.0, "./Assets/Drone Defender/octotoad1_auv.png",
                                                  self.Planet5, 700, "MLB", self.Spaceship)
         self.Sentinal4 = spaceJamClasses.Orbiter(self.loader, self.taskMgr, "./Assets/Drone Defender/DroneDefender.obj",
-                                                 self.render, "Drone", 6.0, "./Assets/Drone Defender/octotoad1_auv.png",
+                                                 self.render, "DroneSentinal4", 6.0, "./Assets/Drone Defender/octotoad1_auv.png",
                                                  self.Planet6, 400, "Cloud", self.Spaceship)
+        self.Wanderer1 = spaceJamClasses.Wanderer(self.loader, "./Assets/Drone Defender/DroneDefender.obj", self.render,
+                                                  "DroneWanderer1", 6.0, "./Assets/Drone Defender/octotoad1_auv.png",
+                                                  self.Spaceship, Vec3(300, 6000, 500), 25, 'Route1')
+        self.Wanderer2 = spaceJamClasses.Wanderer(self.loader, "./Assets/Drone Defender/DroneDefender.obj", self.render,
+                                                  "DroneWanderer2", 6.0, "./Assets/Drone Defender/octotoad1_auv.png",
+                                                  self.Spaceship, Vec3(300, 4500, 500), 15, 'Route2')
 
     def DrawBaseballSeams(self, centralObject, droneName, step, numSeams, radius=1):
         unitVec = defensePaths.BaseballSeams(step, numSeams, B=0.4)

@@ -5,6 +5,7 @@ from CollideObjectBase import *
 from direct.task.Task import TaskManager
 import DefensePaths as defensePaths
 from direct.filter.CommonFilters import CommonFilters
+from direct.interval.IntervalGlobal import Sequence
 
 
 class Universe(InverseSphereCollideObject):
@@ -139,3 +140,25 @@ class Orbiter(SphereCollideObject):
 
         self.modelNode.lookAt(self.staringAt.modelNode)
         return task.cont
+
+
+class Wanderer(SphereCollideObject):
+    numWanderers = 0
+
+    def __init__(self, loader: Loader, modelPath: str, parentNode: NodePath, nodeName: str, scaleVec: float,
+                 texPath: str, staringAt: Vec3, startPos: Vec3, speed: int, routeName: str):
+        super(Wanderer, self).__init__(loader, modelPath, parentNode, nodeName, Vec3(0, 0, 0), 3.2)
+
+        self.modelNode.setScale(scaleVec)
+        tex = loader.loadTexture(texPath)
+        self.modelNode.setTexture(tex, 1)
+        self.startingAt = staringAt
+        Wanderer.numWanderers += 1
+
+        posInterval0 = self.modelNode.posInterval(speed, Vec3(700, -2000, 100), startPos=startPos)
+        posInterval1 = self.modelNode.posInterval(speed, Vec3(600, -900, 300), startPos=Vec3(700, -2000, 100))
+        posInterval2 = self.modelNode.posInterval(speed, startPos, startPos=Vec3(600, -900, 300))
+
+        self.travelRoute = Sequence(posInterval0, posInterval1, posInterval2, name=routeName)
+
+        self.travelRoute.loop()

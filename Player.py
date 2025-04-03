@@ -1,5 +1,6 @@
+from direct.showbase.ShowBaseGlobal import aspect2d
 from CollideObjectBase import SphereCollideObject
-from panda3d.core import Loader, NodePath, Vec3, TransparencyAttrib, CollisionTraverser, Point3
+from panda3d.core import Loader, NodePath, Vec3, TransparencyAttrib, CollisionTraverser, Point3, TextNode
 from direct.task.Task import TaskManager
 from typing import Callable
 from direct.task import Task
@@ -49,6 +50,19 @@ class Spaceship(SphereCollideObject):
 
         self.camera = camera
         self.firstPerson = True
+
+        self.ammoText = TextNode('Ammo')
+        self.ammoText.setText('Ammo: ' + str(self.missileBay))
+        self.ammoTextPath = aspect2d.attachNewNode(self.ammoText)
+        self.ammoTextPath.setScale(0.07)
+        self.ammoTextPath.setPos((0.75, 0, -0.75))
+
+        self.missilesFired = 0
+        self.missilesFiredText = TextNode('MissilesFired')
+        self.missilesFiredText.setText('Missiles Fired: ' + str(self.missilesFired))
+        self.missilesFiredTextPath = aspect2d.attachNewNode(self.missilesFiredText)
+        self.missilesFiredTextPath.setScale(0.07)
+        self.missilesFiredTextPath.setPos((0.53, 0, -0.85))
 
     def Thrust(self, keyDown):
         if keyDown:
@@ -159,10 +173,14 @@ class Spaceship(SphereCollideObject):
         if self.missileBay == 2:
             self.SpawnMissile(Vec3(40, 10, 0))
             self.SpawnMissile(Vec3(-40, -10, 0))
+            self.UpdateAmmoCounter(0)
+            self.missilesFired += 2
+            self.UpdateMissileCounter()
         else:
             # If we aren't reloading, we want to start reloading.
             if not self.taskMgr.hasTaskNamed('reload'):
                 print('Initializing reload...')
+                self.UpdateAmmoCounter("Reloading")
                 # Call the reload method on no delay.
                 self.taskMgr.doMethodLater(0, self.Reload, 'reload')
                 return Task.cont
@@ -189,6 +207,7 @@ class Spaceship(SphereCollideObject):
             print('Reload complete.')
             if self.missileBay > 2:
                 self.missileBay = 2
+            self.UpdateAmmoCounter(self.missileBay)
             return Task.done
         elif task.time <= self.reloadTime:
             print('Reload proceeding...')
@@ -301,6 +320,12 @@ class Spaceship(SphereCollideObject):
                                                   startHpr=Point3(currentH, currentP, currentR))
         barrelRoll = Sequence(hprInterval1, name="BarrelRoll")
         barrelRoll.start()
+
+    def UpdateAmmoCounter(self, text):
+        self.ammoText.setText("Ammo: " + str(text))
+
+    def UpdateMissileCounter(self):
+        self.missilesFiredText.setText("Missiles Fired: " + str(self.missilesFired))
 
     def SetKeyBindings(self):
         # All of our key bindings for our spaceship's movement
