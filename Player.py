@@ -281,8 +281,7 @@ class Spaceship(SphereCollideObject):
         if t >= 1.0 and self.explodeEffect:
             self.explodeEffect.disable()
             explodeNodes = self.render.findAllMatches('ExplosionEffects')
-            for node in explodeNodes:
-                node.removeNode()
+            explodeNodes[0].removeNode()
         elif t == 0:
             self.explodeEffect.start(self.explodeNode)
 
